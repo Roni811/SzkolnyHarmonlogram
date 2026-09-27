@@ -781,12 +781,16 @@
         
         scheduleNextUpdate();
 
-        // Page Views Counter
-        function updatePageViews() {
-            let views = localStorage.getItem('pageViews');
-            views = views ? parseInt(views) + 1 : 1;
-            localStorage.setItem('pageViews', views);
-            document.getElementById('viewCount').textContent = views;
+        // Global Page Views Counter (CountAPI)
+        async function updatePageViews() {
+            try {
+                const response = await fetch('https://api.countapi.xyz/hit/roni811-skolny-harmonlogram/views');
+                const data = await response.json();
+                document.getElementById('viewCount').textContent = data.value;
+            } catch (error) {
+                console.log('Licznik niedostępny');
+                document.getElementById('viewCount').textContent = '?';
+            }
         }
 
         // Uruchom licznik

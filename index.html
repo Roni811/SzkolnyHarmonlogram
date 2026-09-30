@@ -13,6 +13,33 @@
 
 		gtag('config', 'G-BBXSKY2KHR');
 	</script>
+	<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDfeYXlcgRY8aq3UySwGoLq4eZyVY9NELo",
+    authDomain: "szkolnyharmonlogram.firebaseapp.com",
+    projectId: "szkolnyharmonlogram",
+    storageBucket: "szkolnyharmonlogram.firebasestorage.app",
+    messagingSenderId: "397628657503",
+    appId: "1:397628657503:web:87ea48deadadd6407530ea",
+    measurementId: "G-BV6YTBZY4Z"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  import { inicjalizujLicznik } from "./counter.js";
+  // Wywołanie funkcji z przekazaniem ID elementu HTML
+  inicjalizujLicznik("licznik");
+</script>
     <style>
         * {
             margin: 0;
@@ -478,7 +505,7 @@
 
         <!-- Page Views Counter -->
         <div class="views-counter">
-            <div class="views-counter-label">👁️ Wyświetlenia: <span id="viewCount">0</span></div>
+            <div class="views-counter-label">👁️ Wyświetlenia: <span id="licznik">0</span></div>
         </div>
 
         <!-- Countdown Hero Section -->

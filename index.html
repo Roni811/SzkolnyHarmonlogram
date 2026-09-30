@@ -4,42 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Szkolny - Dashboard Dynamiczny</title>
-	<!-- Google tag (gtag.js) -->
+	<!-- Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-BBXSKY2KHR"></script>
 	<script>
         window.dataLayer = window.dataLayer || [];
 		function gtag(){dataLayer.push(arguments);}
 		gtag('js', new Date());
-
 		gtag('config', 'G-BBXSKY2KHR');
 	</script>
-	<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDfeYXlcgRY8aq3UySwGoLq4eZyVY9NELo",
-    authDomain: "szkolnyharmonlogram.firebaseapp.com",
-    projectId: "szkolnyharmonlogram",
-    storageBucket: "szkolnyharmonlogram.firebasestorage.app",
-    messagingSenderId: "397628657503",
-    appId: "1:397628657503:web:87ea48deadadd6407530ea",
-    measurementId: "G-BV6YTBZY4Z"
-  };
+	<!-- Firebase SDK -->
+	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+	<script>
+		// Firebase Configuration
+		const firebaseConfig = {
+			apiKey: "AIzaSyDfeYXlcgRY8aq3UySwGoLq4eZyVY9NELo",
+			authDomain: "szkolnyharmonlogram.firebaseapp.com",
+			projectId: "szkolnyharmonlogram",
+			storageBucket: "szkolnyharmonlogram.firebasestorage.app",
+			messagingSenderId: "397628657503",
+			appId: "1:397628657503:web:87ea48deadadd6407530ea"
+		};
 
-  import { inicjalizujLicznik } from "./counter.js";
-  // Wywołanie funkcji z przekazaniem ID elementu HTML
-  inicjalizujLicznik("licznik");
-</script>
+		// Initialize Firebase
+		const app = firebase.initializeApp(firebaseConfig);
+		const db = firebase.firestore();
+
+		// Page Views Counter Function
+		async function updatePageViews() {
+			try {
+				const docRef = db.collection("statystyki").doc("glowna");
+				
+				// Zwiększ licznik o 1
+				await docRef.set({ 
+					wyswietlenia: firebase.firestore.FieldValue.increment(1) 
+				}, { merge: true });
+
+				// Pobierz aktualną liczbę
+				const docSnap = await docRef.get();
+				if (docSnap.exists()) {
+					const liczba = docSnap.data().wyswietlenia || 0;
+					const element = document.getElementById("licznik");
+					if (element) {
+						element.textContent = liczba;
+					}
+				}
+			} catch (error) {
+				console.error("Błąd licznika:", error);
+				const element = document.getElementById("licznik");
+				if (element) {
+					element.textContent = "?";
+				}
+			}
+		}
+
+		// Run counter when page loads
+		window.addEventListener('load', updatePageViews);
+	</script>
+
     <style>
         * {
             margin: 0;
@@ -76,7 +100,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         .header {
             background: var(--bg-white);
             padding: 30px;
@@ -98,7 +121,7 @@
             font-size: 16px;
         }
 
-        /* Page Views Counter - Discrete */
+        /* Page Views Counter */
         .views-counter {
             background: rgba(6, 182, 212, 0.08);
             color: var(--secondary);
@@ -124,37 +147,37 @@
             margin: 4px 0;
         }
 
-        /* Countdown Timer */
         .countdown-section {
             background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
             color: white;
-            padding: 40px;
+            padding: 50px;
             border-radius: 16px;
+            text-align: center;
             margin-bottom: 30px;
             box-shadow: var(--shadow-lg);
-            text-align: center;
         }
 
         .countdown-title {
-            font-size: 18px;
-            font-weight: 500;
-            opacity: 0.95;
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .countdown-display {
+        .countdown-timer {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .countdown-item {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 12px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .countdown-number {
@@ -165,333 +188,159 @@
         }
 
         .countdown-label {
-            font-size: 13px;
-            font-weight: 600;
-            opacity: 0.85;
+            font-size: 12px;
+            opacity: 0.9;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
-        /* Main Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 24px;
+        .countdown-date {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .calendar-section,
+        .events-section {
+            background: var(--bg-white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
             margin-bottom: 30px;
         }
 
-        .card {
-            background: var(--bg-white);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            border: 1px solid var(--border);
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--bg-light);
-        }
-
-        .card-header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-light);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-
-        .card-icon.primary {
-            background: rgba(30, 58, 138, 0.1);
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
             color: var(--primary);
-        }
-
-        .card-icon.secondary {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--secondary);
-        }
-
-        .card-icon.accent {
-            background: rgba(249, 115, 22, 0.1);
-            color: var(--accent);
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        /* Navigation Buttons */
-        .nav-buttons {
+            margin-bottom: 20px;
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
         }
 
-        .btn-nav {
-            background: var(--bg-light);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            color: var(--primary);
-            transition: all 0.2s ease;
-            font-size: 13px;
+            transition: opacity 0.2s;
         }
 
-        .btn-nav:hover {
-            background: var(--secondary);
-            color: white;
-            border-color: var(--secondary);
+        .calendar-nav button:hover {
+            opacity: 0.8;
         }
 
-        .btn-nav:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Calendar */
-        .calendar-wrapper {
-            overflow-x: auto;
-        }
-
-        .calendar {
+        .calendar-table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
 
-        .calendar thead {
-            background: var(--bg-light);
-        }
-
-        .calendar th {
-            padding: 12px 8px;
+        .calendar-table th,
+        .calendar-table td {
+            padding: 12px;
             text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .calendar td {
-            padding: 10px 8px;
-            text-align: center;
-            font-size: 13px;
             border: 1px solid var(--border);
-            position: relative;
-            cursor: pointer;
-            min-height: 60px;
-            vertical-align: middle;
         }
 
-        .calendar td:hover {
+        .calendar-table th {
+            background: var(--bg-light);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .calendar-table td {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .calendar-table td:hover {
             background: var(--bg-light);
         }
 
-        .calendar td.event {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--secondary);
+        .calendar-table td.today {
+            background: var(--secondary);
+            color: white;
             font-weight: 600;
+            border-radius: 4px;
         }
 
-        .calendar td.today {
-            background: rgba(249, 115, 22, 0.15);
-            color: var(--accent);
-            font-weight: 700;
-            border-radius: 6px;
-        }
-
-        .calendar td.other-month {
+        .calendar-table td.other-month {
             color: var(--text-muted);
-            opacity: 0.5;
+            background: var(--bg-light);
         }
 
-        /* Loading Spinner */
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--border);
-            border-top: 2px solid var(--secondary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-left: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Events List */
         .events-list {
-            max-height: 400px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .event-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-        }
-
-        .event-item:last-child {
-            border-bottom: none;
-        }
-
-        .event-badge {
             background: var(--bg-light);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+            transition: transform 0.2s;
+        }
+
+        .event-item:hover {
+            transform: translateX(4px);
+        }
+
+        .event-date {
+            font-size: 12px;
+            color: var(--text-muted);
             font-weight: 600;
-            color: var(--primary);
-            white-space: nowrap;
-        }
-
-        .event-badge.holiday {
-            background: rgba(249, 115, 22, 0.1);
-            color: var(--accent);
-        }
-
-        .event-details {
-            flex: 1;
         }
 
         .event-name {
+            font-size: 16px;
             font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 2px;
-            font-size: 13px;
+            color: var(--primary);
+            margin-top: 4px;
         }
 
-        /* Tasks */
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .task-item:last-child {
-            border-bottom: none;
-        }
-
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-radius: 6px;
-            margin-right: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .task-checkbox:hover {
-            border-color: var(--secondary);
-            background: rgba(6, 182, 212, 0.1);
-        }
-
-        .task-checkbox.completed {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
-
-        .task-text {
-            flex: 1;
-        }
-
-        .task-text.completed {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-
-        .task-subject {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-dark);
-        }
-
-        .task-due {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* Status Messages */
-        .status-message {
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
+        .loading {
             text-align: center;
-            margin: 16px 0;
+            padding: 20px;
+            color: var(--text-muted);
         }
 
-        .status-message.info {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--secondary);
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 40px;
         }
 
-        .status-message.error {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .header {
-                padding: 20px;
+            .countdown-timer {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .countdown-number {
+                font-size: 32px;
             }
 
             .header h1 {
                 font-size: 24px;
             }
 
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
             .countdown-section {
                 padding: 30px 20px;
-            }
-
-            .countdown-number {
-                font-size: 36px;
-            }
-
-            .countdown-display {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            body {
-                padding: 10px;
             }
         }
     </style>
@@ -505,13 +354,13 @@
 
         <!-- Page Views Counter -->
         <div class="views-counter">
-            <div class="views-counter-label">👁️ Wyświetlenia: <span id="licznik">0</span></div>
+            <div class="views-counter-label">👁️ Wyświetlenia: <span id="licznik" style="font-weight: 700;">0</span></div>
         </div>
 
         <!-- Countdown Hero Section -->
         <div class="countdown-section">
             <div class="countdown-title">DO KOŃCA ROKU SZKOLNEGO</div>
-            <div class="countdown-display">
+            <div class="countdown-timer">
                 <div class="countdown-item">
                     <div class="countdown-number" id="days">0</div>
                     <div class="countdown-label">Dni</div>
@@ -529,299 +378,169 @@
                     <div class="countdown-label">Sekund</div>
                 </div>
             </div>
-            <div class="countdown-date">Koniec roku szkolnego: 25 czerwca 2027</div>
+            <div class="countdown-date" id="countdownDate">Koniec roku szkolnego: 25 czerwca 2027</div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="grid">
-            <!-- Calendar with Navigation -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-header-left">
-                        <div class="card-icon secondary">📅</div>
-                        <div>
-                            <div class="card-title" id="calendarMonth">Grudzień 2024</div>
-                        </div>
-                    </div>
-                    <div class="nav-buttons">
-                        <button class="btn-nav" id="prevMonth" onclick="changeMonth(-1)">← Poprz</button>
-                        <button class="btn-nav" id="todayMonth" onclick="goToToday()">Dziś</button>
-                        <button class="btn-nav" id="nextMonth" onclick="changeMonth(1)">Następ →</button>
-                    </div>
-                </div>
-                <div class="calendar-wrapper">
-                    <table class="calendar" id="calendarTable">
-                        <thead>
-                            <tr>
-                                <th>Pn</th>
-                                <th>Wt</th>
-                                <th>Śr</th>
-                                <th>Cz</th>
-                                <th>Pt</th>
-                                <th>Sb</th>
-                                <th>Nd</th>
-                            </tr>
-                        </thead>
-                        <tbody id="calendarBody">
-                        </tbody>
-                    </table>
-                </div>
+        <!-- Calendar Section -->
+        <div class="calendar-section">
+            <div class="section-title">📅 <span id="calendarTitle">Grudzień 2024</span></div>
+            <div class="calendar-nav">
+                <button onclick="previousMonth()">← Poprz</button>
+                <button onclick="todayMonth()">Dziś</button>
+                <button onclick="nextMonth()">Następ →</button>
             </div>
+            <table class="calendar-table" id="calendarTable">
+                <tr>
+                    <th>Pn</th>
+                    <th>Wt</th>
+                    <th>Śr</th>
+                    <th>Cz</th>
+                    <th>Pt</th>
+                    <th>Sb</th>
+                    <th>Nd</th>
+                </tr>
+                <tbody id="calendarBody"></tbody>
+            </table>
+        </div>
 
-            <!-- Dni Wolne i Wydarzenia Szkolne -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-header-left">
-                        <div class="card-icon accent">🏫</div>
-                        <div class="card-title">Dni Wolne & Wydarzenia </div>
-                    </div>
-                </div>
-                <div class="events-list" id="eventsList">
-                    <div class="status-message info">Ładowanie danych...</div>
-                </div>
+        <!-- Events Section -->
+        <div class="events-section">
+            <div class="section-title">🏫 Dni Wolne & Wydarzenia</div>
+            <div class="events-list" id="eventsList">
+                <div class="loading">Ładowanie danych...</div>
             </div>
         </div>
 
-        <div class="grid">
-        </div>
-
-        <div style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0; border-top: 1px solid var(--border);">
-            <p>© 2024 Portal Szkolny | Dane aktualizowane automatycznie</p>
+        <div class="footer">
+            © 2024 Portal Szkolny | Dane aktualizowane automatycznie
         </div>
     </div>
 
     <script>
+        // Holiday dates configuration
+        const holidays = [
+            { name: 'Wszystkich Świętych', date: new Date(2024, 10, 1) },
+            { name: 'Dzień Niepodległości', date: new Date(2024, 10, 11) },
+            { name: 'Boże Narodzenie', date: new Date(2024, 11, 25) },
+            { name: 'Sylwester', date: new Date(2024, 11, 31) },
+            { name: 'Nowy Rok', date: new Date(2025, 0, 1) },
+            { name: 'Trzech Króli', date: new Date(2025, 0, 6) },
+            { name: 'Walentynki', date: new Date(2025, 1, 14) },
+            { name: 'Międzynarodowy Dzień Kobiet', date: new Date(2025, 2, 8) },
+            { name: 'Zmartwychwstanie Pańskie', date: new Date(2025, 3, 20) },
+            { name: 'Święto Pracy', date: new Date(2025, 4, 1) },
+            { name: 'Święto Konstytucji', date: new Date(2025, 4, 3) },
+            { name: 'Wniebowzięcie Najświętszej Marii Panny', date: new Date(2025, 7, 15) },
+            { name: 'Koniec roku szkolnego', date: new Date(2025, 5, 25) }
+        ];
+
+        const schoolYearEnd = new Date(2025, 5, 25);
         let currentDate = new Date();
 
-        // Countdown Timer
         function updateCountdown() {
-            const endDate = new Date('2027-06-25').getTime();
-            const now = new Date().getTime();
-            const diff = endDate - now;
+            const now = new Date();
+            const diff = schoolYearEnd - now;
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / 1000 / 60) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
 
-            document.getElementById('days').textContent = days;
-            document.getElementById('hours').textContent = hours;
-            document.getElementById('minutes').textContent = minutes;
-            document.getElementById('seconds').textContent = seconds;
+                document.getElementById('days').textContent = days;
+                document.getElementById('hours').textContent = hours;
+                document.getElementById('minutes').textContent = minutes;
+                document.getElementById('seconds').textContent = seconds;
+            }
         }
 
-        // Calendar Functions
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-
-            // Real school calendar for Mazovia
-            const schoolEvents = [
-                { dateStart: new Date('2026-11-01'), dateEnd: new Date('2026-11-01'), name: 'Wszystkich Świętych', icon: '⛪' },
-                { dateStart: new Date('2026-11-11'), dateEnd: new Date('2026-11-11'), name: 'Święto Niepodległości', icon: '🇵🇱' },
-                { dateStart: new Date('2026-12-23'), dateEnd: new Date('2026-12-31'), name: 'Zimowa przerwa', icon: '❄️' },
-                { dateStart: new Date('2027-01-01'), dateEnd: new Date('2027-01-01'), name: 'Nowy Rok', icon: '🎊' },
-                { dateStart: new Date('2027-01-06'), dateEnd: new Date('2027-01-06'), name: 'Trzech Króli', icon: '👑' },
-                { dateStart: new Date('2027-02-01'), dateEnd: new Date('2027-02-14'), name: 'Ferie zimowe', icon: '⛷️' },
-                { dateStart: new Date('2027-03-25'), dateEnd: new Date('2027-03-30'), name: 'Wielkanoc', icon: '🐰' },
-                { dateStart: new Date('2027-05-01'), dateEnd: new Date('2027-05-01'), name: 'Święto Pracy', icon: '🌸' },
-                { dateStart: new Date('2027-05-03'), dateEnd: new Date('2027-05-03'), name: 'Trzeciego Maja', icon: '📜' },
-                { dateStart: new Date('2027-05-27'), dateEnd: new Date('2027-05-27'), name: 'Boże Ciało', icon: '✨' },
-            ];
-
-            // Update header
-            const monthNames = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
-                             'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
-            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
-
-            // Get first day of month and number of days
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const prevLastDay = new Date(year, month, 0).getDate();
+            const nextDays = 7 - lastDay.getDay();
 
             const calendarBody = document.getElementById('calendarBody');
             calendarBody.innerHTML = '';
 
-            let day = 1;
-            let nextMonthDay = 1;
+            const monthNames = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
+                'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+            document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
 
-            for (let i = 0; i < 6; i++) {
-                const row = document.createElement('tr');
-
-                for (let j = 0; j < 7; j++) {
-                    const cell = document.createElement('td');
-
-                    if (i === 0 && j < firstDay - 1) {
-                        cell.textContent = daysInPrevMonth - (firstDay - 2 - j);
-                        cell.classList.add('other-month');
-                    } else if (day > daysInMonth) {
-                        cell.textContent = nextMonthDay++;
-                        cell.classList.add('other-month');
-                    } else {
-                        const currentCheckDate = new Date(year, month, day);
-                        
-                        // Check if today
-                        const today = new Date();
-                        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                            cell.classList.add('today');
-                        }
-
-                        // Check for events on this day
-                        const eventOnDay = schoolEvents.find(event => 
-                            currentCheckDate >= event.dateStart && currentCheckDate <= event.dateEnd
-                        );
-
-                        if (eventOnDay) {
-                            cell.classList.add('event');
-                            cell.innerHTML = `<div style="font-weight: 700;">${day}</div><div style="font-size: 16px; margin-top: 2px;">${eventOnDay.icon}</div>`;
-                        } else {
-                            cell.textContent = day;
-                        }
-
-                        day++;
-                    }
-                    row.appendChild(cell);
-                }
-                calendarBody.appendChild(row);
+            let html = '<tr>';
+            for (let i = firstDay.getDay() - 1; i > 0; i--) {
+                html += `<td class="other-month">${prevLastDay - i + 1}</td>`;
             }
+
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.toDateString() === new Date().toDateString();
+                const classes = isToday ? 'class="today"' : '';
+                html += `<td ${classes}>${day}</td>`;
+            }
+
+            for (let day = 1; day <= nextDays; day++) {
+                html += `<td class="other-month">${day}</td>`;
+            }
+
+            html += '</tr>';
+            calendarBody.innerHTML = html;
         }
 
-        function changeMonth(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendar();
         }
 
-        function goToToday() {
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function todayMonth() {
             currentDate = new Date();
             renderCalendar();
         }
 
-        // Load Holiday Data - Mazovia School Calendar
         function loadHolidayData() {
             const eventsList = document.getElementById('eventsList');
             const now = new Date();
+            const futureHolidays = holidays.filter(h => h.date > now).slice(0, 5);
 
-            // Real school calendar for Mazovia (województwo mazowieckie)
-            const allEvents = [
-                // Holidays & Free Days - z datą startową do parsowania
-                { dateStart: new Date('2026-11-01'), dateEnd: new Date('2026-11-01'), name: 'Wszystkich Świętych', type: 'Dzień wolny', icon: '⛪', display: '1 listopada 2026' },
-                { dateStart: new Date('2026-11-11'), dateEnd: new Date('2026-11-11'), name: 'Narodowe Święto Niepodległości', type: 'Dzień wolny', icon: '🇵🇱', display: '11 listopada 2026' },
-                { dateStart: new Date('2026-12-23'), dateEnd: new Date('2026-12-31'), name: 'Zimowa przerwa świąteczna', type: 'Przerwa szkolna', icon: '❄️', display: '23 - 31 grudnia 2026' },
-                { dateStart: new Date('2027-01-01'), dateEnd: new Date('2027-01-01'), name: 'Nowy Rok', type: 'Dzień wolny', icon: '🎊', display: '1 stycznia 2027' },
-                { dateStart: new Date('2027-01-06'), dateEnd: new Date('2027-01-06'), name: 'Święto Trzech Króli', type: 'Dzień wolny', icon: '👑', display: '6 stycznia 2027' },
-                { dateStart: new Date('2027-02-01'), dateEnd: new Date('2027-02-14'), name: 'Ferie zimowe', type: 'Przerwa szkolna', icon: '⛷️', display: '1 - 14 lutego 2027' },
-                { dateStart: new Date('2027-03-25'), dateEnd: new Date('2027-03-30'), name: 'Wiosenna przerwa świąteczna (Wielkanoc)', type: 'Przerwa szkolna', icon: '🐰', display: '25 - 30 marca 2027' },
-                { dateStart: new Date('2027-05-01'), dateEnd: new Date('2027-05-01'), name: 'Święto Pracy / Święto Państwowe', type: 'Dzień wolny', icon: '🌸', display: '1 maja 2027' },
-                { dateStart: new Date('2027-05-03'), dateEnd: new Date('2027-05-03'), name: 'Święto Narodowe Trzeciego Maja', type: 'Dzień wolny', icon: '📜', display: '3 maja 2027' },
-                { dateStart: new Date('2027-05-27'), dateEnd: new Date('2027-05-27'), name: 'Uroczystość Bożego Ciała', type: 'Dzień wolny', icon: '✨', display: '27 maja 2027' },
-            ];
-
-            // Filtruj tylko przyszłe wydarzenia
-            const futureEvents = allEvents.filter(event => event.dateEnd >= now);
-            
-            let html = '';
-
-            if (futureEvents.length === 0) {
-                html = '<div class="status-message info">✨ Wszystkie przerwy na tym roku już minęły!</div>';
+            if (futureHolidays.length === 0) {
+                eventsList.innerHTML = '<div class="loading">Wszystkie dni wolne na ten rok już minęły!</div>';
             } else {
-                futureEvents.forEach(event => {
-                    const isHoliday = event.type.includes('Dzień') || event.type.includes('Przerwa');
-                    const timeUntil = calculateTimeUntil(event.dateStart);
-                    
-                    html += `
-                        <div class="event-item">
-                            <div style="display: flex; gap: 8px; flex-direction: column; flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span class="event-badge ${isHoliday ? 'holiday' : ''}">
-                                        ${event.icon} ${event.display}
-                                    </span>
-                                </div>
-                                <div class="event-details">
-                                    <div class="event-name">${event.name}</div>
-                                    <div style="font-size: 11px; color: var(--text-muted);">${event.type}</div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--secondary); font-weight: 600; margin-top: 4px;">
-                                    <span>⏱️</span>
-                                    <span>${timeUntil}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
+                eventsList.innerHTML = futureHolidays.map(holiday => `
+                    <div class="event-item">
+                        <div class="event-date">${holiday.date.toLocaleDateString('pl-PL')}</div>
+                        <div class="event-name">🎉 ${holiday.name}</div>
+                    </div>
+                `).join('');
             }
-
-            eventsList.innerHTML = html;
         }
 
-        // Calculate time until event
-        function calculateTimeUntil(eventDate) {
+        function scheduleNextUpdate() {
             const now = new Date();
-            const diff = eventDate - now;
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
 
-            if (diff < 0) return 'Minęło';
+            const timeUntilUpdate = tomorrow - now;
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-            if (days > 30) {
-                const weeks = Math.floor(days / 7);
-                return `za ${weeks} ${weeks === 1 ? 'tydzień' : weeks < 5 ? 'tygodnie' : 'tygodni'}`;
-            } else if (days > 0) {
-                return `za ${days} ${days === 1 ? 'dzień' : days < 5 ? 'dni' : 'dni'}`;
-            } else if (hours > 0) {
-                return `za ${hours} ${hours === 1 ? 'godzinę' : hours < 5 ? 'godziny' : 'godzin'}`;
-            } else {
-                return `za ${minutes} ${minutes === 1 ? 'minutę' : 'minut'}`;
-            }
+            setTimeout(() => {
+                loadHolidayData();
+                scheduleNextUpdate();
+            }, timeUntilUpdate);
         }
-
-        // Task checkboxes
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('task-checkbox')) {
-                e.target.classList.toggle('completed');
-                e.target.textContent = e.target.classList.contains('completed') ? '✓' : '';
-                e.target.closest('.task-item').querySelector('.task-text').classList.toggle('completed');
-            }
-        });
 
         // Initialize
         updateCountdown();
         setInterval(updateCountdown, 1000);
         renderCalendar();
         loadHolidayData();
-        
-        // Funkcja do obliczenia czasu do 0:01
-        function scheduleNextUpdate() {
-            const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 1, 0, 0); // 0:01
-            
-            const timeUntilUpdate = tomorrow - now;
-            
-            setTimeout(() => {
-                loadHolidayData();
-                scheduleNextUpdate(); // Powtórz jutro
-            }, timeUntilUpdate);
-        }
-        
         scheduleNextUpdate();
-
-        // Global Page Views Counter (CountAPI)
-        async function updatePageViews() {
-            try {
-                const response = await fetch('https://api.countapi.xyz/hit/roni811-skolny-harmonlogram/views');
-                const data = await response.json();
-                document.getElementById('viewCount').textContent = data.value;
-            } catch (error) {
-                console.log('Licznik niedostępny');
-                document.getElementById('viewCount').textContent = '?';
-            }
-        }
-
-        // Uruchom licznik
-        updatePageViews();
     </script>
 </body>
 </html>

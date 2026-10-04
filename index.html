@@ -4,65 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Szkolny - Dashboard Dynamiczny</title>
-	<!-- Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-BBXSKY2KHR"></script>
-	<script>
-        window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		gtag('js', new Date());
-		gtag('config', 'G-BBXSKY2KHR');
-	</script>
-
-	<!-- Firebase SDK -->
-	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
-
-	<script>
-		// Firebase Configuration
-		const firebaseConfig = {
-			apiKey: "AIzaSyDfeYXlcgRY8aq3UySwGoLq4eZyVY9NELo",
-			authDomain: "szkolnyharmonlogram.firebaseapp.com",
-			projectId: "szkolnyharmonlogram",
-			storageBucket: "szkolnyharmonlogram.firebasestorage.app",
-			messagingSenderId: "397628657503",
-			appId: "1:397628657503:web:87ea48deadadd6407530ea"
-		};
-
-		// Initialize Firebase
-		const app = firebase.initializeApp(firebaseConfig);
-		const db = firebase.firestore();
-
-		// Page Views Counter Function
-		async function updatePageViews() {
-			try {
-				const docRef = db.collection("statystyki").doc("glowna");
-				
-				// Zwiększ licznik o 1
-				await docRef.set({ 
-					wyswietlenia: firebase.firestore.FieldValue.increment(1) 
-				}, { merge: true });
-
-				// Pobierz aktualną liczbę
-				const docSnap = await docRef.get();
-				if (docSnap.exists()) {
-					const liczba = docSnap.data().wyswietlenia || 0;
-					const element = document.getElementById("licznik");
-					if (element) {
-						element.textContent = liczba;
-					}
-				}
-			} catch (error) {
-				console.error("Błąd licznika:", error);
-				const element = document.getElementById("licznik");
-				if (element) {
-					element.textContent = "?";
-				}
-			}
-		}
-
-		// Run counter when page loads
-		window.addEventListener('load', updatePageViews);
-	</script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 
     <style>
         * {
@@ -121,7 +66,6 @@
             font-size: 16px;
         }
 
-        /* Page Views Counter */
         .views-counter {
             background: rgba(6, 182, 212, 0.08);
             color: var(--secondary);
@@ -131,20 +75,7 @@
             margin-bottom: 20px;
             border: 1px solid rgba(6, 182, 212, 0.2);
             font-size: 12px;
-        }
-
-        .views-counter-label {
-            font-size: 11px;
-            opacity: 0.8;
             font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-
-        .views-counter-number {
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 1;
-            margin: 4px 0;
         }
 
         .countdown-section {
@@ -354,7 +285,7 @@
 
         <!-- Page Views Counter -->
         <div class="views-counter">
-            <div class="views-counter-label">👁️ Wyświetlenia: <span id="licznik" style="font-weight: 700;">0</span></div>
+            👁️ Wyświetlenia: <span id="licznik">0</span>
         </div>
 
         <!-- Countdown Hero Section -->
@@ -378,7 +309,7 @@
                     <div class="countdown-label">Sekund</div>
                 </div>
             </div>
-            <div class="countdown-date" id="countdownDate">Koniec roku szkolnego: 25 czerwca 2027</div>
+            <div class="countdown-date">Koniec roku szkolnego: 25 czerwca 2025</div>
         </div>
 
         <!-- Calendar Section -->
@@ -389,7 +320,7 @@
                 <button onclick="todayMonth()">Dziś</button>
                 <button onclick="nextMonth()">Następ →</button>
             </div>
-            <table class="calendar-table" id="calendarTable">
+            <table class="calendar-table">
                 <tr>
                     <th>Pn</th>
                     <th>Wt</th>
@@ -417,12 +348,47 @@
     </div>
 
     <script>
-        // Holiday dates configuration
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfeYXlcgRY8aq3UySwGoLq4eZyVY9NELo",
+            authDomain: "szkolnyharmonlogram.firebaseapp.com",
+            projectId: "szkolnyharmonlogram",
+            storageBucket: "szkolnyharmonlogram.firebasestorage.app",
+            messagingSenderId: "397628657503",
+            appId: "1:397628657503:web:87ea48deadadd6407530ea"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Page Views Counter
+        async function updatePageViews() {
+            try {
+                const docRef = db.collection("statystyki").doc("glowna");
+                
+                // Zwiększ licznik o 1
+                await docRef.set({ 
+                    wyswietlenia: firebase.firestore.FieldValue.increment(1) 
+                }, { merge: true });
+
+                // Pobierz aktualną liczbę
+                const docSnap = await docRef.get();
+                if (docSnap.exists()) {
+                    const liczba = docSnap.data().wyswietlenia || 0;
+                    document.getElementById("licznik").textContent = liczba;
+                }
+            } catch (error) {
+                console.error("Błąd licznika:", error);
+                document.getElementById("licznik").textContent = "?";
+            }
+        }
+
+        // Holiday dates
         const holidays = [
             { name: 'Wszystkich Świętych', date: new Date(2024, 10, 1) },
             { name: 'Dzień Niepodległości', date: new Date(2024, 10, 11) },
             { name: 'Boże Narodzenie', date: new Date(2024, 11, 25) },
-            { name: 'Sylwester', date: new Date(2024, 11, 31) },
             { name: 'Nowy Rok', date: new Date(2025, 0, 1) },
             { name: 'Trzech Króli', date: new Date(2025, 0, 6) },
             { name: 'Walentynki', date: new Date(2025, 1, 14) },
@@ -437,6 +403,7 @@
         const schoolYearEnd = new Date(2025, 5, 25);
         let currentDate = new Date();
 
+        // Countdown Timer
         function updateCountdown() {
             const now = new Date();
             const diff = schoolYearEnd - now;
@@ -454,6 +421,7 @@
             }
         }
 
+        // Calendar Functions
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -504,6 +472,7 @@
             renderCalendar();
         }
 
+        // Events
         function loadHolidayData() {
             const eventsList = document.getElementById('eventsList');
             const now = new Date();
@@ -521,26 +490,12 @@
             }
         }
 
-        function scheduleNextUpdate() {
-            const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
-
-            const timeUntilUpdate = tomorrow - now;
-
-            setTimeout(() => {
-                loadHolidayData();
-                scheduleNextUpdate();
-            }, timeUntilUpdate);
-        }
-
         // Initialize
         updateCountdown();
         setInterval(updateCountdown, 1000);
         renderCalendar();
         loadHolidayData();
-        scheduleNextUpdate();
+        updatePageViews();
     </script>
 </body>
 </html>
